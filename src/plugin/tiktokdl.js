@@ -2,6 +2,7 @@ import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 import pkgg from 'nayan-media-downloader';
 const { tikdown } = pkgg;
+import config from '../../config.cjs';
 
 
 const searchResultsMap = new Map();
@@ -22,10 +23,9 @@ const tiktokCommand = async (m, Matrix) => {
 
   const selectedId = selectedListId || selectedButtonId;
 
-  const prefixMatch = m.body.match(/^[\\/!#.]/);
-  const prefix = prefixMatch ? prefixMatch[0] : '/';
-  const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
-  const text = m.body.slice(prefix.length + cmd.length).trim();
+  const prefix = config.PREFIX;
+const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
+const text = m.body.slice(prefix.length + cmd.length).trim();
 
   const validCommands = ['tiktok', 'tt', 'ttdl'];
 
@@ -55,14 +55,14 @@ const tiktokCommand = async (m, Matrix) => {
           "name": "quick_reply",
           "buttonParamsJson": JSON.stringify({
             display_text: "🎦 Video",
-            id: `mediaa_video_${searchIndex}`
+            id: `ttmedia_video_${searchIndex}`
           })
         },
         {
           "name": "quick_reply",
           "buttonParamsJson": JSON.stringify({
             display_text: "🎵 Audio",
-            id: `mediaa_audio_${searchIndex}`
+            id: `ttmedia_audio_${searchIndex}`
           })
         }
       ];
@@ -79,7 +79,7 @@ const tiktokCommand = async (m, Matrix) => {
                 text: `𝞢𝙏𝞖𝞘𝞦-𝞛𝘿 TikTok Download\n\nTitle: ${currentResult.data.title}\nAuthor: ${currentResult.data.author.nickname}\nViews: ${currentResult.data.view}\nDuration: ${currentResult.data.duration}s\n`
               }),
               footer: proto.Message.InteractiveMessage.Footer.create({
-                text: "© Powered By 𝞢𝙏𝞖𝞘𝞦-𝞛𝘿"
+                text: "© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴇᴛʜɪx-ᴍᴅ"
               }),
               header: proto.Message.InteractiveMessage.Header.create({
                  ...(await prepareWAMessageMedia({ image: { url: `https://telegra.ph/file/fbbe1744668b44637c21a.jpg` } }, { upload: Matrix.waUploadToServer })),
@@ -92,6 +92,7 @@ const tiktokCommand = async (m, Matrix) => {
                 buttons
               }),
               contextInfo: {
+                quotedMessage: m.message,
                 mentionedJid: [m.sender],
                 forwardingScore: 9999,
                 isForwarded: true,
@@ -113,7 +114,7 @@ const tiktokCommand = async (m, Matrix) => {
       await m.React("❌");
     }
   } else if (selectedId) { 
-    if (selectedId.startsWith('mediaa_')) {
+    if (selectedId.startsWith('ttmedia_')) {
       const parts = selectedId.split('_');
       const type = parts[1];
       const key = parseInt(parts[2]);
@@ -136,9 +137,9 @@ const tiktokCommand = async (m, Matrix) => {
           const fileSizeInMB = finalMediaBuffer.length / (1024 * 1024);
 
           if (type === 'video' && fileSizeInMB <= 300) {
-            content = { video: finalMediaBuffer, mimetype: 'video/mp4', caption: '> © Powered by 𝞢𝙏𝞖𝞘𝞦-𝞛𝘿' };
+            content = { video: finalMediaBuffer, mimetype: 'video/mp4', caption: '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴇᴛʜɪx-ᴍᴅ' };
           } else if (type === 'audio' && fileSizeInMB <= 300) {
-            content = { audio: finalMediaBuffer, mimetype: 'audio/mpeg', caption: '> © Powered by 𝞢𝙏𝞖𝞘𝞦-𝞛𝘿' };
+            content = { audio: finalMediaBuffer, mimetype: 'audio/mpeg', caption: '> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴇᴛʜɪx-ᴍᴅ' };
           }
 
           await Matrix.sendMessage(m.from, content, { quoted: m });

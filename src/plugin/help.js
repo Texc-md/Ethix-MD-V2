@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
+import config from '../../config.cjs';
 
 // Get total memory and free memory in bytes
 const totalMemoryBytes = os.totalmem();
@@ -69,14 +70,12 @@ const test = async (m, Matrix) => {
   }
   const selectedId = selectedListId || selectedButtonId;
   
-  const prefix = /^[\\/!#.]/gi.test(m.body) ? m.body.match(/^[\\/!#.]/gi)[0] : '.';
-        const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).toLowerCase() : '';
-        let ethix = {
-    public: true 
-};
-
-let mode = ethix.public ? 'public' : 'private';
-
+  const prefix = config.PREFIX;
+const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
+       
+       const mode = config.MODE === 'public' ? 'public' : 'private';
+       const pref = config.PREFIX;
+           
         const validCommands = ['list', 'help', 'menu'];
 
   if (validCommands.includes(cmd)) {
@@ -91,12 +90,12 @@ let mode = ethix.public ? 'public' : 'private';
             body: proto.Message.InteractiveMessage.Body.create({
               text: `╭─────────────━┈⊷
 │🤖 ʙᴏᴛ ɴᴀᴍᴇ: *ᴇᴛʜɪx-ᴍᴅ*
-│📍 ᴠᴇʀꜱɪᴏɴ: 2.0.3
+│📍 ᴠᴇʀꜱɪᴏɴ: 2.1.0
 │👨‍💻 ᴏᴡɴᴇʀ : *ᴇᴛʜɪx xsɪᴅ*      
 │👤 ɴᴜᴍʙᴇʀ: 919142294671
 │📡 ᴘʟᴀᴛғᴏʀᴍ: *${os.platform()}*
 │🛡 ᴍᴏᴅᴇ: *${mode}*
-│💫 ᴘʀᴇғɪx: *[Multi-Prefix]*
+│💫 ᴘʀᴇғɪx: [${pref}]
 ╰─────────────━┈⊷ `
             }),
             footer: proto.Message.InteractiveMessage.Footer.create({
@@ -115,14 +114,14 @@ let mode = ethix.public ? 'public' : 'private';
           "name": "quick_reply",
           "buttonParamsJson": JSON.stringify({
             display_text: "ALIVE",
-            id: `.alive`
+            id: `${prefix}alive`
           })
         },
         {
           "name": "quick_reply",
           "buttonParamsJson": JSON.stringify({
             display_text: "PING",
-            id: `.ping`
+            id: `${prefix}ping`
           })
         },
                 {
@@ -199,6 +198,7 @@ let mode = ethix.public ? 'public' : 'private';
               ],
             }),
             contextInfo: {
+                  quotedMessage: m.message,
                   mentionedJid: [m.sender], 
                   forwardingScore: 999,
                   isForwarded: true,
@@ -218,7 +218,6 @@ let mode = ethix.public ? 'public' : 'private';
     });
   }
       if (selectedId == "View All Menu") {
-        const mode = process.env.MODE;
         const str = `hey ${m.pushName} ${pushwish}
 ╭─────────────━┈⊷
 │🤖 ʙᴏᴛ ɴᴀᴍᴇ: *ᴇᴛʜɪx-ᴍᴅ*
@@ -226,8 +225,8 @@ let mode = ethix.public ? 'public' : 'private';
 │👨‍💻 ᴏᴡɴᴇʀ : *ᴇᴛʜɪx xsɪᴅ*      
 │👤 ɴᴜᴍʙᴇʀ: 919142294671
 │💻 ᴘʟᴀᴛғᴏʀᴍ: *${os.platform()}*
-│🛡 ᴍᴏᴅᴇ: *${mode}*
-│💫 ᴘʀᴇғɪx: *[Multi-Prefix]*
+│🛡 ᴍᴏᴅᴇ: *${config.MODE}*
+│💫 ᴘʀᴇғɪx: [${pref}]
 ╰─────────────━┈⊷ 
 ╭━❮ 𝙲𝙾𝙽𝚅𝙴𝚁𝚃𝙴𝚁 ❯━╮
 ┃✰ ${prefix}𝙰𝚃𝚃𝙿
@@ -349,7 +348,7 @@ let mode = ethix.public ? 'public' : 'private';
        let { key } = await Matrix.sendMessage(m.from, {
   image: fs.readFileSync('./src/ethix.jpg'), 
   caption: str, 
-  contextInfo: {
+  contextInfo: { 
                   mentionedJid: [m.sender], 
                   forwardingScore: 999,
                   isForwarded: true,
